@@ -1,0 +1,237 @@
+﻿{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+  "parameters": {
+
+    "deploymentPrefix": {
+      "type": "string"
+    },
+    "deploymentCode": {
+      "type": "string"
+    },
+    "deploymentInstance": {
+      "type": "string",
+      "defaultValue": "01"
+    },
+    "deploymentPath": {
+      "type": "string",
+      "defaultValue": "",
+      "allowedValues": [
+        "",
+        "d",
+        "s",
+        "t"
+      ]
+    },
+    
+    "appServiceSKU": {
+      "type": "string",
+      "allowedValues": [
+        "Free",
+        "Shared",
+        "Basic",
+        "Standard"
+      ],
+      "defaultValue": "Standard"
+    },
+    "appServiceWorkerSize": {
+      "type": "string",
+      "allowedValues": [
+        "0",
+        "1",
+        "2"
+      ],
+      "defaultValue": "1"
+    },
+      "sqlServerAdminLogin": {
+          "type": "string",
+          "minLength": 1
+      },
+      "sqlServerAdminLoginPassword": {
+          "type": "securestring"
+      },
+      
+      "sqlDatabaseCollation": {
+          "type": "string",
+          "minLength": 1,
+          "defaultValue": "SQL_Latin1_General_CP1_CI_AS"
+      },
+      "sqlDatabaseEdition": {
+          "type": "string",
+          "defaultValue": "Standard",
+          "allowedValues": [
+              "Basic",
+              "Standard",
+              "Premium"
+          ]
+      },
+      "sqlDatabaseRequestedServiceObjectiveName": {
+          "type": "string",
+          "defaultValue": "S2",
+          "allowedValues": [
+              "Basic",
+              "S0",
+              "S1",
+              "S2",
+              "P1",
+              "P2",
+              "P3"
+          ]          
+      }
+  },
+  "variables": {
+    "appServicePlanName": "[concat(parameters('deploymentPrefix'),'ap',parameters('deploymentCode'),parameters('deploymentInstance'),parameters('deploymentPath'))]",
+    "appServiceName": "[concat(parameters('deploymentPrefix'),'as',parameters('deploymentCode'),parameters('deploymentInstance'),parameters('deploymentPath'))]",
+    "sqlServerName": "[concat(parameters('deploymentPrefix'),'ss',parameters('deploymentCode'),'02',parameters('deploymentPath'))]",
+    "sqlDatabaseName": "[concat(parameters('deploymentPrefix'),'sd',parameters('deploymentCode'),parameters('deploymentInstance'),parameters('deploymentPath'))]"
+  },
+    "resources": [
+      {
+        "name": "[variables('appServicePlanName')]",
+        "type": "Microsoft.Web/serverfarms",
+        "location": "[resourceGroup().location]",
+        "apiVersion": "2014-06-01",
+        "dependsOn": [],
+        "tags": {
+          "displayName": "[variables('appServicePlanName')]"
+        },
+        "properties": {
+          "name": "[variables('appServicePlanName')]",
+          "sku": "[parameters('appServiceSKU')]",
+          "workerSize": "[parameters('appServiceWorkerSize')]",
+          "numberOfWorkers": 1
+        }
+      },
+      {
+        "name": "[variables('appServiceName')]",
+        "type": "Microsoft.Web/sites",
+        "location": "[resourceGroup().location]",
+        "apiVersion": "2015-08-01",
+        "dependsOn": [
+          "[concat('Microsoft.Web/serverfarms/', variables('appServicePlanName'))]"
+        ],
+        "tags": {
+          "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('appServicePlanName'))]": "Resource",
+          "displayName": "[variables('appServiceName')]"
+        },
+        "properties": {
+          "name": "[variables('appServiceName')]",
+          "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', variables('appServicePlanName'))]"
+        }
+      },
+      {
+        "name": "[variables('sqlServerName')]",
+        "type": "Microsoft.Sql/servers",
+        "location": "[resourceGroup().location]",
+        "apiVersion": "2014-04-01-preview",
+        "dependsOn": [],
+        "tags": {
+          "displayName": "[variables('sqlServerName')]"
+        },
+        "properties": {
+          "administratorLogin": "[parameters('sqlServerAdminLogin')]",
+          "administratorLoginPassword": "[parameters('sqlServerAdminLoginPassword')]"
+        },
+        "resources": [
+          {
+            "name": "AllowAllWindowsAzureIps",
+            "type": "firewallrules",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2014-04-01-preview",
+            "dependsOn": [
+              "[concat('Microsoft.Sql/servers/', variables('sqlServerName'))]"
+            ],
+            "properties": {
+              "startIpAddress": "0.0.0.0",
+              "endIpAddress": "0.0.0.0"
+            }
+          },
+          {
+            "name": "allowRule01",
+            "type": "firewallrules",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2014-04-01-preview",
+            "dependsOn": [
+              "[concat('Microsoft.Sql/servers/', variables('sqlServerName'))]"
+            ],
+            "properties": {
+              "startIpAddress": "81.128.158.158",
+              "endIpAddress": "81.128.158.158"
+            }
+          },
+          {
+            "name": "allowRule02",
+            "type": "firewallrules",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2014-04-01-preview",
+            "dependsOn": [
+              "[concat('Microsoft.Sql/servers/', variables('sqlServerName'))]"
+            ],
+            "properties": {
+              "startIpAddress": "195.200.153.1",
+              "endIpAddress": "195.200.153.254"
+            }
+          },
+          {
+            "name": "allowRule03",
+            "type": "firewallrules",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2014-04-01-preview",
+            "dependsOn": [
+              "[concat('Microsoft.Sql/servers/', variables('sqlServerName'))]"
+            ],
+            "properties": {
+              "startIpAddress": "195.200.144.1",
+              "endIpAddress": "195.200.144.254"
+            }
+          },
+          {
+            "name": "allowRule04",
+            "type": "firewallrules",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2014-04-01-preview",
+            "dependsOn": [
+              "[concat('Microsoft.Sql/servers/', variables('sqlServerName'))]"
+            ],
+            "properties": {
+              "startIpAddress": "212.102.208.1",
+              "endIpAddress": "212.102.208.254"
+            }
+          },
+          {
+            "name": "allowRule05",
+            "type": "firewallrules",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2014-04-01-preview",
+            "dependsOn": [
+              "[concat('Microsoft.Sql/servers/', variables('sqlServerName'))]"
+            ],
+            "properties": {
+              "startIpAddress": "194.129.228.1",
+              "endIpAddress": "194.129.228.254"
+            }
+          },
+          {
+            "name": "[variables('sqlDatabaseName')]",
+            "type": "databases",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2014-04-01-preview",
+            "dependsOn": [
+              "[variables('sqlServerName')]"
+            ],
+            "tags": {
+              "displayName": "[variables('sqlDatabaseName')]"
+            },
+            "properties": {
+              "collation": "[parameters('sqlDatabaseCollation')]",
+              "edition": "[parameters('sqlDatabaseEdition')]",
+              "maxSizeBytes": "1073741824",
+              "requestedServiceObjectiveName": "[parameters('sqlDatabaseRequestedServiceObjectiveName')]"
+            }
+          }
+        ]
+      }
+    ],
+    "outputs": {
+    }
+}

@@ -1,0 +1,30 @@
+﻿{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+  "parameters": {
+    "deploymentPrefix": {
+      "value": "canecs"
+    },
+    "deploymentCode": {
+      "value": "scv"
+    },
+    "deploymentInstance": {
+      "value": "01"
+    },
+    "deploymentPath": {
+      "value": ""
+    },
+    "sqlServerAdminLogin": {
+      "value": "sqladmin"
+    },
+    "sqlServerAdminLoginPassword": {
+      "value": "7YRzAxt4y9C8"
+    },
+      "appServiceWorkerSize": {
+          "value": "1"
+      },
+      "sqlDatabaseRequestedServiceObjectiveName": {
+          "value": "S2"
+      }
+  }
+}

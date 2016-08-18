@@ -2,8 +2,11 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
   "parameters": {
-    "deploymentPrefix": {
-      "value": "canecs"
+    "appDeploymentCount": {
+      "value": 3
+    },
+    "appServiceWorkerSize": {
+      "value": "1"
     },
     "deploymentCode": {
       "value": "abc"
@@ -14,20 +17,17 @@
     "deploymentPath": {
       "value": ""
     },
+    "deploymentPrefix": {
+      "value": "canecs"
+    },
+    "sqlDatabaseType": {
+      "value": "S2"
+    },
     "sqlServerAdminLogin": {
       "value": "sqladmin"
     },
     "sqlServerAdminLoginPassword": {
       "value": "7YRzAxt4y9C8"
-    },
-      "appServiceWorkerSize": {
-          "value": "1"
-      },
-    "sqlDatabaseType": {
-      "value": "S2"
-    },
-      "appDeploymentCount": {
-          "value": 3
-      }
+    }
   }
 }
